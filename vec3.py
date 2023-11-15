@@ -4,7 +4,7 @@ import numpy as np
 class Vec3:
     def __init__(self, e=(0, 0, 0)):
         try:
-            self.e = e.e
+            self.e = np.array(e.e)
         except:
             self.e = np.array(e)
 
@@ -25,12 +25,10 @@ class Vec3:
         return Vec3(self.e + other.e)
 
     def __sub__(self, other):
-
         return Vec3(self.e - other.e)
 
     def __mul__(self, t):
-
-        return Vec3(self.e * t)
+        return Vec3(np.array(self.e) * t)
 
     def __rmul__(self, t):
         return self.__mul__(t)
@@ -57,7 +55,8 @@ class Vec3:
         return np.cross(self.e, other.e)
 
 
-# a = Vec3((1, 1, 1))
+a = Vec3((2, 2, 1))
+print(a.dot(a))
 # b = Vec3((1, 1, 2))
 # print(a * np.array(1.1))
 
