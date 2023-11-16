@@ -1,4 +1,5 @@
 import numpy as np
+from utilities import random_double
 
 
 class Vec3:
@@ -28,7 +29,10 @@ class Vec3:
         return Vec3(self.e - other.e)
 
     def __mul__(self, t):
-        return Vec3(np.array(self.e) * t)
+        try:
+            return Vec3(np.array(self.e) * np.array(t.e))
+        except:
+            return Vec3(np.array(self.e) * t)
 
     def __rmul__(self, t):
         return self.__mul__(t)
@@ -54,10 +58,32 @@ class Vec3:
     def cross(self, other):
         return np.cross(self.e, other.e)
 
+    def random(self, min=0, max=1):
+        return Vec3((random_double(min, max), random_double(min, max), random_double(min, max)))
 
-a = Vec3((2, 2, 1))
-print(a.dot(a))
-# b = Vec3((1, 1, 2))
-# print(a * np.array(1.1))
+    def random_in_unit_sphere(self):
+        while True:
+            p = self.random(-1, 1)
+            if p.length_squared() < 1:
+                return p
 
+    def random_unit_vector(self):
+        return self.random_in_unit_sphere().unit()
+
+    def random_on_hemisphere(self, normal):
+        on_unit_sphere = self.random_unit_vector()
+        return on_unit_sphere if on_unit_sphere.dot(normal) > 0 else on_unit_sphere * (-1)
+
+    def near_zero(self):
+        s = 0.00000001
+        return (abs(self.x()) < s) and (abs(self.y()) < s) and (abs(self.z()) < s)
+
+    def reflect(self, other):
+        return self - 2 * self.dot(other) * other
+
+
+# a = Vec3((1, -1, 0))
+# b = Vec3((0, 1, 0))
+# print(a.reflect(b.unit()))
+# print(a.random_unit_vector().length_squared())
 Point3 = Vec3

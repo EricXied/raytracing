@@ -1,26 +1,28 @@
 from hit_record import HitRecord
 from hittable import Hittable
 from vec3 import Vec3
-
+import numpy as np
 
 class Sphere(Hittable):
 
-    def __init__(self, center, radius):
+    def __init__(self, center, radius, material):
         self.center = center
         self.radius = radius
+        self.material = material
 
     def hit(self, r, ray_t, rec):
 
         oc = r.origin() - self.center
-        a = r.direction().dot(r.direction())
+        a = r.direction().length_squared()
         half_b = oc.dot(r.direction())
         c = oc.dot(oc) - self.radius * self.radius
         discriminant = half_b * half_b - a * c
 
         if discriminant < 0:
             return False
-        sqrtd = discriminant ** 0.5
-        root = (sqrtd + half_b) * (-1) / a
+
+        sqrtd = np.sqrt(discriminant)
+        root = (- sqrtd - half_b) / a
         if not ray_t.surrounds(root):
             root = (sqrtd - half_b) / a
             if not ray_t.surrounds(root):
@@ -30,4 +32,5 @@ class Sphere(Hittable):
         rec.p = r.at(rec.t)
         outward_normal = (rec.p - self.center) / self.radius
         rec.set_face_normal(r, outward_normal)
+        rec.mat = self.material
         return True
