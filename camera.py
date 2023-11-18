@@ -15,7 +15,7 @@ class Camera:
         self.sample_per_pixel = 10
         self.max_depth = 10
 
-        self.image_height = int(max(1, self.image_width / self.aspect_ratio))
+        self.image_height = int(max(1.0, self.image_width / self.aspect_ratio))
         self.focal_length = 1.0
         self.viewport_height = 2.0
         self.viewport_width = self.viewport_height * (self.image_width / self.image_height)
@@ -45,30 +45,6 @@ class Camera:
     #         # im.show()
     #     im.show()
     #     im.save('MetalDiffuse.png')
-
-    def render(self, world, pool):
-        self.initialize()
-
-        im = Image.new("RGB", (self.image_width, self.image_height))
-        for j in range(self.image_height):
-            print("%.2f percentage..." % (100 * (j * self.image_width) / (self.image_width * self.image_height)))
-            row_colors = pool.starmap(self.ray_tracing_task, [(i, j, world) for i in range(self.image_width)])
-            for i, color in enumerate(row_colors):
-                im.putpixel((i, j), tuple(map(int, (256 * color).e)))
-
-        im.show()
-        im.save('MetalDiffuse3.png')
-
-    def ray_tracing_task(self, i, j, world):
-
-        pixel_color = Color((0, 0, 0))
-        for sample in range(self.sample_per_pixel):
-            r = self.get_ray(i, j)
-            pixel_color += Color(self.ray_color(r, self.max_depth, world))
-        pixel_color = Color(pixel_color.e)
-        pixel_color = pixel_color.write_color(self.sample_per_pixel)
-        return pixel_color
-
     def initialize(self):
         self.focal_length = 1.0
         self.viewport_height = 2.0
@@ -82,6 +58,33 @@ class Camera:
         self.viewport_upper_left = self.camera_center - Vec3(
             (0, 0, self.focal_length)) - self.viewport_u / 2 - self.viewport_v / 2
         self.pixel00_loc = self.viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5
+
+
+    def render(self, world, pool):
+        self.initialize()
+
+        im = Image.new("RGB", (self.image_width, self.image_height))
+        for j in range(self.image_height):
+            print("%.2f percentage..." % (100 * (j * self.image_width) / (self.image_width * self.image_height)))
+            row_colors = pool.starmap(self.ray_tracing_task, [(i, j, world) for i in range(self.image_width)])
+            for i, color in enumerate(row_colors):
+                im.putpixel((i, j), tuple(map(int, (256 * color).e)))
+
+        im.show()
+        #im.save('Refraction2.png')
+
+
+
+    def ray_tracing_task(self, i, j, world):
+
+        pixel_color = Color((0, 0, 0))
+        for sample in range(self.sample_per_pixel):
+            r = self.get_ray(i, j)
+            pixel_color += Color(self.ray_color(r, self.max_depth, world))
+        pixel_color = Color(pixel_color.e)
+        pixel_color = pixel_color.write_color(self.sample_per_pixel)
+        return pixel_color
+
 
     def ray_color(self, r, depth, world):
         rec = HitRecord()

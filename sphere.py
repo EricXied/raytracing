@@ -1,7 +1,6 @@
-from hit_record import HitRecord
 from hittable import Hittable
-from vec3 import Vec3
 import numpy as np
+
 
 class Sphere(Hittable):
 
