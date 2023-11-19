@@ -43,6 +43,9 @@ class Vec3:
     def __abs__(self):
         return np.sqrt(self.length_squared())
 
+    def __neg__(self):
+        return -1 * self
+
     def length(self):
         return abs(self)
 
@@ -56,7 +59,7 @@ class Vec3:
         return np.dot(self.e, other.e)
 
     def cross(self, other):
-        return np.cross(self.e, other.e)
+        return Vec3(np.cross(self.e, other.e))
 
     def random(self, min=0, max=1):
         return Vec3((random_double(min, max), random_double(min, max), random_double(min, max)))
@@ -73,6 +76,12 @@ class Vec3:
     def random_on_hemisphere(self, normal):
         on_unit_sphere = self.random_unit_vector()
         return on_unit_sphere if on_unit_sphere.dot(normal) > 0 else on_unit_sphere * (-1)
+
+    def random_in_unit_dist(self):
+        while True:
+            p = Vec3((random_double(-1, 1), random_double(-1, 1), 0))
+            if p.length_squared() < 1:
+                return p
 
     def near_zero(self):
         s = 0.00000001
@@ -91,4 +100,3 @@ class Vec3:
 
 
 Point3 = Vec3
-
