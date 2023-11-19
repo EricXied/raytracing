@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from ray import Ray
 from vec3 import Vec3
 from color import Color
+import numpy as np
 
 
 class Material(ABC):
@@ -43,8 +44,18 @@ class Dielectric(Material):
 
     def scatter(self, r_in, rec, attenuation, scattered):
         attenuation = Color((1.0, 1.0, 1.0))
+
         refraction_ratio = 1.0 / self.ir if rec.front_face else self.ir
         unit_direction = r_in.direction().unit()
+        cos_theta = min(max(-unit_direction.dot(rec.normal), -1.0), 1.0)
+        sin_theta = np.sqrt(1 - cos_theta * cos_theta)
+        cannot_reflect = refraction_ratio * sin_theta > 1.0
+
+        if cannot_reflect:
+            direction = unit_direction.reflect(rec.normal)
+        else:
+            direction = unit_direction.refract(rec.normal, refraction_ratio)
+
         refracted = unit_direction.refract(rec.normal, refraction_ratio)
-        scattered = Ray(rec.p, refracted)
+        scattered = Ray(rec.p, direction)
         return attenuation, scattered

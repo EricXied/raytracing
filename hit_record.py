@@ -11,4 +11,7 @@ class HitRecord:
 
     def set_face_normal(self, r, outward_normal):
         self.front_face = r.direction().dot(outward_normal) < 0
+        # if self.front_face:
+        #     print('yes')
         self.normal = outward_normal if self.front_face else outward_normal * (-1)
+        # return self.front_face, self.normal

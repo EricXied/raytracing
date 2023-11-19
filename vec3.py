@@ -82,15 +82,13 @@ class Vec3:
         return self - 2 * self.dot(other) * other
 
     def refract(self, other, eta_ov_eta):
-        cos_theta = min(-self.dot(other), 1.0)
-        r_out_perp = eta_ov_eta * (self + cos_theta * other)
+
+        cos_theta = min(max(self.dot(other), -1.0), 1.0)
+
+        r_out_perp = (self - cos_theta * other) * eta_ov_eta
         r_out_parallel = -np.sqrt(abs(1.0 - r_out_perp.length_squared())) * other
         return r_out_perp + r_out_parallel
 
 
 Point3 = Vec3
 
-# a = Vec3((1, -1, 0))
-# b = Vec3((0, 1, 0))
-# print(a.reflect(b.unit()))
-# print(a.random_unit_vector().length_squared())

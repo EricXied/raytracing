@@ -21,8 +21,6 @@ class HittableList(Hittable):
             if obj.hit(r, Interval(ray_t.min, closest_so_far), temp_rec):
                 hit_anything = True
                 closest_so_far = temp_rec.t
-                rec.p = temp_rec.p
-                rec.t = temp_rec.t
-                rec.normal = temp_rec.normal
-                rec.mat = temp_rec.mat
+                rec[0] = temp_rec
+
         return hit_anything

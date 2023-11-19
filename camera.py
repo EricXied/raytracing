@@ -59,7 +59,6 @@ class Camera:
             (0, 0, self.focal_length)) - self.viewport_u / 2 - self.viewport_v / 2
         self.pixel00_loc = self.viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5
 
-
     def render(self, world, pool):
         self.initialize()
 
@@ -71,9 +70,7 @@ class Camera:
                 im.putpixel((i, j), tuple(map(int, (256 * color).e)))
 
         im.show()
-        #im.save('Refraction2.png')
-
-
+        im.save('Refraction3.png')
 
     def ray_tracing_task(self, i, j, world):
 
@@ -85,16 +82,17 @@ class Camera:
         pixel_color = pixel_color.write_color(self.sample_per_pixel)
         return pixel_color
 
-
     def ray_color(self, r, depth, world):
-        rec = HitRecord()
+        rec = [HitRecord()]
         if depth <= 0:
             return Color()
-        if world.hit(r, Interval(0.001, inf), rec):
+        if world.hit(r, Interval(0.0001, inf), rec):
             scattered = Ray()
             attenuation = Color()
-            if rec.mat.scatter(r, rec, attenuation, scattered):
-                attenuation, scattered = rec.mat.scatter(r, rec, attenuation, scattered)
+            if rec[0].mat.scatter(r, rec[0], attenuation, scattered):
+                # if rec.front_face:
+                #     print("yes")
+                attenuation, scattered = rec[0].mat.scatter(r, rec[0], attenuation, scattered)
                 return self.ray_color(scattered, depth - 1, world) * attenuation
             return Color()
 
