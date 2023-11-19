@@ -1,10 +1,11 @@
 import numpy as np
+from utilities import random_double
 
 
 class Vec3:
     def __init__(self, e=(0, 0, 0)):
         try:
-            self.e = e.e
+            self.e = np.array(e.e)
         except:
             self.e = np.array(e)
 
@@ -25,12 +26,13 @@ class Vec3:
         return Vec3(self.e + other.e)
 
     def __sub__(self, other):
-
         return Vec3(self.e - other.e)
 
     def __mul__(self, t):
-
-        return Vec3(self.e * t)
+        try:
+            return Vec3(np.array(self.e) * np.array(t.e))
+        except:
+            return Vec3(np.array(self.e) * t)
 
     def __rmul__(self, t):
         return self.__mul__(t)
@@ -40,6 +42,9 @@ class Vec3:
 
     def __abs__(self):
         return np.sqrt(self.length_squared())
+
+    def __neg__(self):
+        return -1 * self
 
     def length(self):
         return abs(self)
@@ -54,11 +59,44 @@ class Vec3:
         return np.dot(self.e, other.e)
 
     def cross(self, other):
-        return np.cross(self.e, other.e)
+        return Vec3(np.cross(self.e, other.e))
 
+    def random(self, min=0, max=1):
+        return Vec3((random_double(min, max), random_double(min, max), random_double(min, max)))
 
-# a = Vec3((1, 1, 1))
-# b = Vec3((1, 1, 2))
-# print(a * np.array(1.1))
+    def random_in_unit_sphere(self):
+        while True:
+            p = self.random(-1, 1)
+            if p.length_squared() < 1:
+                return p
+
+    def random_unit_vector(self):
+        return self.random_in_unit_sphere().unit()
+
+    def random_on_hemisphere(self, normal):
+        on_unit_sphere = self.random_unit_vector()
+        return on_unit_sphere if on_unit_sphere.dot(normal) > 0 else on_unit_sphere * (-1)
+
+    def random_in_unit_dist(self):
+        while True:
+            p = Vec3((random_double(-1, 1), random_double(-1, 1), 0))
+            if p.length_squared() < 1:
+                return p
+
+    def near_zero(self):
+        s = 0.00000001
+        return (abs(self.x()) < s) and (abs(self.y()) < s) and (abs(self.z()) < s)
+
+    def reflect(self, other):
+        return self - 2 * self.dot(other) * other
+
+    def refract(self, other, eta_ov_eta):
+
+        cos_theta = min(max(self.dot(other), -1.0), 1.0)
+
+        r_out_perp = (self - cos_theta * other) * eta_ov_eta
+        r_out_parallel = -np.sqrt(abs(1.0 - r_out_perp.length_squared())) * other
+        return r_out_perp + r_out_parallel
+
 
 Point3 = Vec3

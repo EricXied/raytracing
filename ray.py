@@ -1,5 +1,6 @@
+from vec3 import Point3,Vec3
 class Ray:
-    def __init__(self, point3, vec3):
+    def __init__(self, point3=Point3(), vec3=Vec3()):
         self.point3 = point3
         self.vec3 = vec3
 

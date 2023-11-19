@@ -1,5 +1,6 @@
 from hittable import Hittable
 from hit_record import HitRecord
+from interval import Interval
 
 
 class HittableList(Hittable):
@@ -12,14 +13,14 @@ class HittableList(Hittable):
     def add(self, obj):
         self.objects.append(obj)
 
-    def hit(self, r, ray_tmin, ray_tmax, rec):
+    def hit(self, r, ray_t, rec):
         temp_rec = HitRecord()
         hit_anything = False
-        closet_so_far = ray_tmax
+        closest_so_far = ray_t.max
         for obj in self.objects:
-            if obj.hit(r, ray_tmin, closet_so_far, temp_rec):
+            if obj.hit(r, Interval(ray_t.min, closest_so_far), temp_rec):
                 hit_anything = True
-                closet_so_far = temp_rec.t
-                rec.t = temp_rec.t
-                rec.normal = temp_rec.normal
+                closest_so_far = temp_rec.t
+                rec[0] = temp_rec
+
         return hit_anything
