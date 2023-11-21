@@ -4,8 +4,8 @@ import numpy as np
 
 
 class Color(Vec3):
-    def __init__(self, e=(0, 0, 0)):
-        super().__init__(e)
+    def __init__(self, e=(0, 0, 0), *args):
+        super().__init__(e, *args)
 
     def write_color(self, samples_per_pixel):
         r = self.x()
@@ -28,3 +28,5 @@ class Color(Vec3):
 
 def linear_to_gamma(linear):
     return np.sqrt(linear)
+
+

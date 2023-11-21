@@ -3,14 +3,20 @@ from utilities import random_double
 
 
 class Vec3:
-    def __init__(self, e=(0, 0, 0)):
-        try:
-            self.e = np.array(e.e)
-        except:
-            self.e = np.array(e)
+    def __init__(self, x=0, *args):
+        if isinstance(x, int) and len(args) == 2:
+            self.e = np.array([x, args[0], args[1]])
+        elif isinstance(x, int) and len(args) == 0:
+            self.e = np.array((0, 0, 0))
+        elif isinstance(x, (tuple, np.ndarray)):
+            self.e = np.array(x)
+        elif isinstance(x, Vec3):
+            self.e = x.e
+        else:
+            raise ValueError("Invalid arguments provided for Vec3 constructor")
 
     def __repr__(self):
-        return f'Vector:{self.e}'
+        return f'{self.__class__.__name__}:{self.e}'
 
     def x(self):
         return self.e[0]
@@ -99,4 +105,9 @@ class Vec3:
         return r_out_perp + r_out_parallel
 
 
-Point3 = Vec3
+class Point3(Vec3):
+    def __init__(self, e=(0, 0, 0), *args):
+        super().__init__(e, *args)
+
+
+

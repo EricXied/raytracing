@@ -12,8 +12,6 @@ class Camera:
 
     def __init__(self, params_dict):
 
-        # for key, value in params_dict.items():
-        #     setattr(self, key, value)
         self.aspect_ratio = params_dict['aspect_ratio']
         self.image_width = params_dict['image_width']
         self.sample_per_pixel = params_dict['sample_per_pixel']
@@ -52,23 +50,6 @@ class Camera:
         self.defocus_disk_u = self.u * self.defocus_radius
         self.defocus_disk_v = self.v * self.defocus_radius
 
-    # def render(self, world):
-    #     self.initialize()
-    #
-    #     im = Image.new("RGB", (self.image_width, self.image_height))
-    #     for j in range(self.image_height):
-    #         print("%.2f percentage..." % (100 * (j * self.image_width) / (self.image_width * self.image_height)))
-    #         for i in range(self.image_width):
-    #             pixel_color = Color((0, 0, 0))
-    #             for sample in range(self.sample_per_pixel):
-    #                 r = self.get_ray(i, j)
-    #                 pixel_color += Color(self.ray_color(r, self.max_depth, world))
-    #             pixel_color = Color(pixel_color.e)
-    #             pixel_color = pixel_color.write_color(self.sample_per_pixel)
-    #             im.putpixel((i, j), tuple(map(int, (256 * pixel_color).e)))
-    #         # im.show()
-    #     im.show()
-    #     im.save('MetalDiffuse.png')
     def render(self, world, pool):
 
         im = Image.new("RGB", (self.image_width, self.image_height))
@@ -76,6 +57,7 @@ class Camera:
             print("%.2f percentage..." % (100 * (j * self.image_width) / (self.image_width * self.image_height)))
             row_colors = pool.starmap(self.ray_tracing_task, [(i, j, world) for i in range(self.image_width)])
             for i, color in enumerate(row_colors):
+
                 im.putpixel((i, j), tuple(map(int, (256 * color).e)))
 
         im.show()
@@ -92,14 +74,14 @@ class Camera:
         return pixel_color
 
     def ray_color(self, r, depth, world):
-        rec = [HitRecord()]
+        rec = HitRecord()
         if depth <= 0:
             return Color()
         if world.hit(r, Interval(0.0001, inf), rec):
             scattered = Ray()
             attenuation = Color()
-            if rec[0].mat.scatter(r, rec[0], attenuation, scattered):
-                attenuation, scattered = rec[0].mat.scatter(r, rec[0], attenuation, scattered)
+            if rec.mat.scatter(r, rec, attenuation, scattered):
+                attenuation, scattered = rec.mat.scatter(r, rec, attenuation, scattered)
                 return self.ray_color(scattered, depth - 1, world) * attenuation
             return Color()
 
@@ -115,7 +97,9 @@ class Camera:
         ray_origin = self.center if self.defocus_angle <= 0 else self.defocus_disk_sample()
         ray_direction = pixel_sample - ray_origin
 
-        return Ray(ray_origin, ray_direction)
+        ray_time = random_double()
+
+        return Ray(ray_origin, ray_direction, ray_time)
 
     def pixel_sample_square(self):
 
