@@ -19,7 +19,7 @@ class Lambertian(Material):
         scatter_direction = rec.normal + Vec3().random_unit_vector()
         if scatter_direction.near_zero():
             scatter_direction = rec.normal
-        scattered = Ray(rec.p, scatter_direction)
+        scattered = Ray(rec.p, scatter_direction, r_in.time())
         attenuation = self.albedo
         return attenuation, scattered
 
@@ -32,7 +32,7 @@ class Metal(Material):
     def scatter(self, r_in, rec, attenuation, scattered):
         reflected = r_in.direction().reflect(rec.normal.unit())
 
-        scattered = Ray(rec.p, reflected + self.fuzz * Vec3().random_unit_vector())
+        scattered = Ray(rec.p, reflected + self.fuzz * Vec3().random_unit_vector(), r_in.time())
         attenuation = self.albedo
         return attenuation, scattered
 
@@ -56,6 +56,5 @@ class Dielectric(Material):
         else:
             direction = unit_direction.refract(rec.normal, refraction_ratio)
 
-        refracted = unit_direction.refract(rec.normal, refraction_ratio)
-        scattered = Ray(rec.p, direction)
+        scattered = Ray(rec.p, direction, r_in.time())
         return attenuation, scattered

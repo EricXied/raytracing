@@ -10,3 +10,4 @@ def degree_to_radians(degrees):
 
 def random_double(minr=0, maxr=1):
     return (maxr - minr) * np.random.random_sample() + minr
+
