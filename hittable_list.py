@@ -3,6 +3,7 @@ from hit_record import HitRecord
 from interval import Interval
 from aabb import AaBb
 from sphere import Sphere
+from quad import Quad
 
 
 class HittableList(Hittable):
@@ -31,7 +32,7 @@ class HittableList(Hittable):
         objs = self.objects.copy()
         while objs:
             obj = objs.pop()
-            if isinstance(obj, Sphere) and obj.bbox.hit(r, Interval(ray_t.min, closest_so_far)):
+            if isinstance(obj, (Quad, Sphere)) and obj.bbox.hit(r, Interval(ray_t.min, closest_so_far)):
                 if obj.hit(r, Interval(ray_t.min, closest_so_far), temp_rec):
                     hit_anything = True
                     closest_so_far = temp_rec.t
@@ -47,7 +48,6 @@ class HittableList(Hittable):
                 if obj.bbox.hit(r, Interval(ray_t.min, closest_so_far)):
                     objs.append(obj.left)
                     objs.append(obj.right)
-
 
         # for obj in self.objects:
         #     if obj.hit(r, Interval(ray_t.min, closest_so_far), temp_rec):
