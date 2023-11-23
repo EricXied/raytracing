@@ -2,7 +2,7 @@ from vec3 import Point3, Vec3
 from hittable_list import HittableList
 from sphere import Sphere
 from camera import Camera
-from material import Lambertian, Metal, Dielectric
+from material import Lambertian, Metal, Dielectric, DiffuseLight
 from color import Color
 from multiprocessing import Pool
 from utilities import random_double
@@ -69,7 +69,8 @@ def random_spheres(pool):
                     'vup': Vec3((0, 1, 0)),
                     'img_name': 'Final Scene4',
                     'defocus_angle': 0.6,
-                    'focus_dist': 10
+                    'focus_dist': 10,
+                    'background': Color((0.7, 0.8, 1.0))
                     }
 
     cam = Camera(camera_param)
@@ -94,7 +95,8 @@ def two_sphere(pool):
                     'vup': Vec3((0, 1, 0)),
                     'img_name': 'TwoSpheres',
                     'defocus_angle': 0,
-                    'focus_dist': 10
+                    'focus_dist': 10,
+                    'background': Color((0.7, 0.8, 1.0))
                     }
 
     cam = Camera(camera_param)
@@ -120,7 +122,8 @@ def earth(pool):
                     'vup': Vec3((0, 1, 0)),
                     'img_name': 'Earth',
                     'defocus_angle': 0,
-                    'focus_dist': 10
+                    'focus_dist': 10,
+                    'background': Color((0.7, 0.8, 1.0))
                     }
 
     cam = Camera(camera_param)
@@ -181,7 +184,37 @@ def quads(pool):
                     'vup': Vec3((0, 1, 0)),
                     'img_name': 'Quads',
                     'defocus_angle': 0,
-                    'focus_dist': 10
+                    'focus_dist': 10,
+                    'background': Color((0.7, 0.8, 1.0))
+                    }
+
+    cam = Camera(camera_param)
+    cam.render(world, pool)
+
+
+def simple_light(pool):
+    world = []
+    pertext = NoiseTexture(4)
+
+    world.append(Sphere(Point3((0, -1000, 0)), 1000, Lambertian(pertext)))
+    world.append(Sphere(Point3((0, 2, 0)), 2, Lambertian(pertext)))
+
+    difflight = DiffuseLight(Color(4, 4, 4))
+    world.append(Quad(Point3((3, 1, -2)), Vec3((2, 0, 0)), Vec3((0, 2, 0)), difflight))
+    world = HittableList(BvhNode(world))
+    # Camera
+    camera_param = {'aspect_ratio': 16.0 / 9.0,
+                    'image_width': 400,
+                    'sample_per_pixel': 100,
+                    'max_depth': 50,
+                    'vfov': 20,
+                    'lookfrom': Point3((26, 3, 6)),
+                    'lookat': Point3((0, 2, 0)),
+                    'vup': Vec3((0, 1, 0)),
+                    'img_name': 'LightSource',
+                    'defocus_angle': 0,
+                    'focus_dist': 10,
+                    'background': Color((0.0, 0.0, 0.0))
                     }
 
     cam = Camera(camera_param)
@@ -195,8 +228,9 @@ def main():
               2: two_sphere,
               3: earth,
               4: two_perlin_spheres,
-              5: quads}
-    switch.get(5)(pool)
+              5: quads,
+              6: simple_light}
+    switch.get(6)(pool)
 
     pool.close()
     pool.join()

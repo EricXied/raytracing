@@ -5,11 +5,14 @@ from color import Color
 import numpy as np
 
 
-
 class Material(ABC):
     @abstractmethod
     def scatter(self, r_in, rec, attenuation, scattered):
         pass
+
+    @abstractmethod
+    def emitted(self, u, v, p):
+        return Color((0, 0, 0))
 
 
 class Lambertian(Material):
@@ -24,6 +27,9 @@ class Lambertian(Material):
         attenuation = self.albedo.value(rec.u, rec.v, rec.p)
         return attenuation, scattered
 
+    def emitted(self, u, v, p):
+        return Color((0, 0, 0))
+
 
 class Metal(Material):
     def __init__(self, albedo, fuzz):
@@ -36,6 +42,9 @@ class Metal(Material):
         scattered = Ray(rec.p, reflected + self.fuzz * Vec3().random_unit_vector(), r_in.time())
         attenuation = self.albedo
         return attenuation, scattered
+
+    def emitted(self, u, v, p):
+        return Color((0, 0, 0))
 
 
 class Dielectric(Material):
@@ -59,3 +68,17 @@ class Dielectric(Material):
 
         scattered = Ray(rec.p, direction, r_in.time())
         return attenuation, scattered
+
+    def emitted(self, u, v, p):
+        return Color((0, 0, 0))
+
+
+class DiffuseLight(Material):
+    def __init__(self, emit):
+        self.emit = emit
+
+    def scatter(self, r_in, rec, attenuation, scattered):
+        return False
+
+    def emitted(self, u, v, p):
+        return self.emit.value(u, v, p)

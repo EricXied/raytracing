@@ -23,6 +23,7 @@ class Camera:
         self.img_name = params_dict['img_name']
         self.defocus_angle = params_dict['defocus_angle']
         self.focus_dist = params_dict['focus_dist']
+        self.background = params_dict.get('background', Color((0, 0, 0)))
 
         self.image_height = int(max(1.0, self.image_width / self.aspect_ratio))
         self.center = self.lookfrom
@@ -57,11 +58,10 @@ class Camera:
             print("%.2f percentage..." % (100 * (j * self.image_width) / (self.image_width * self.image_height)))
             row_colors = pool.starmap(self.ray_tracing_task, [(i, j, world) for i in range(self.image_width)])
             for i, color in enumerate(row_colors):
-
                 im.putpixel((i, j), tuple(map(int, (256 * color).e)))
 
         im.show()
-        im.save('.\\saved_images\\'+self.img_name + '.png')
+        im.save('.\\saved_images\\' + self.img_name + '.png')
 
     def ray_tracing_task(self, i, j, world):
 
@@ -77,17 +77,18 @@ class Camera:
         rec = HitRecord()
         if depth <= 0:
             return Color()
-        if world.hit(r, Interval(0.0001, inf), rec):
-            scattered = Ray()
-            attenuation = Color()
-            if rec.mat.scatter(r, rec, attenuation, scattered):
-                attenuation, scattered = rec.mat.scatter(r, rec, attenuation, scattered)
-                return self.ray_color(scattered, depth - 1, world) * attenuation
-            return Color()
+        if not world.hit(r, Interval(0.0001, inf), rec):
+            return self.background
 
-        unit_direction = Vec3(r.direction()).unit()
-        a = 0.5 * (unit_direction.y() + 1.0)
-        return (1.0 - a) * Color((1.0, 1.0, 1.0)) + a * Color((0.5, 0.7, 1.0))
+        scattered = Ray()
+        attenuation = Color()
+        color_from_emission = rec.mat.emitted(rec.u, rec.v, rec.p)
+        if not rec.mat.scatter(r, rec, attenuation, scattered):
+            return color_from_emission
+
+        attenuation, scattered = rec.mat.scatter(r, rec, attenuation, scattered)
+        color_from_scatter = attenuation * self.ray_color(scattered, depth - 1, world)
+        return color_from_emission+color_from_scatter
 
     def get_ray(self, i, j):
 
