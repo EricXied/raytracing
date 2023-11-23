@@ -5,6 +5,7 @@ from color import Color
 import numpy as np
 
 
+
 class Material(ABC):
     @abstractmethod
     def scatter(self, r_in, rec, attenuation, scattered):
@@ -20,7 +21,7 @@ class Lambertian(Material):
         if scatter_direction.near_zero():
             scatter_direction = rec.normal
         scattered = Ray(rec.p, scatter_direction, r_in.time())
-        attenuation = self.albedo
+        attenuation = self.albedo.value(rec.u, rec.v, rec.p)
         return attenuation, scattered
 
 

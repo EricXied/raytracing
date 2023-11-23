@@ -4,12 +4,14 @@ from color import Color
 
 
 class HitRecord:
-    def __init__(self, mat=Lambertian(Color()), p=Point3(), normal=Vec3(), t=0, f=False):
+    def __init__(self, mat=Lambertian(Color()), p=Point3(), normal=Vec3(), t=0, f=False, u=None, v=None):
         self.p = p
         self.normal = normal
         self.t = t
         self.front_face = f
         self.mat = mat
+        self.u = u
+        self.v = v
 
     def set_face_normal(self, r, outward_normal):
         self.front_face = r.direction().dot(outward_normal) < 0

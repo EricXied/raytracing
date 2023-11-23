@@ -35,12 +35,14 @@ class HittableList(Hittable):
                 if obj.hit(r, Interval(ray_t.min, closest_so_far), temp_rec):
                     hit_anything = True
                     closest_so_far = temp_rec.t
+
                     rec.p = temp_rec.p
                     rec.normal = temp_rec.normal
                     rec.t = temp_rec.t
                     rec.front_face = temp_rec.front_face
                     rec.mat = temp_rec.mat
-
+                    rec.u = temp_rec.u
+                    rec.v = temp_rec.v
             else:
                 if obj.bbox.hit(r, Interval(ray_t.min, closest_so_far)):
                     objs.append(obj.left)

@@ -44,6 +44,7 @@ class Sphere(Hittable):
         outward_normal = (rec.p - self.center1) / self.radius
         rec.set_face_normal(r, outward_normal)
         rec.mat = self.material
+        Sphere.get_sphere_uv(outward_normal,rec)
         return True
 
     def center(self, time):
@@ -51,3 +52,10 @@ class Sphere(Hittable):
 
     def bounding_box(self):
         return self.bbox
+
+    @staticmethod
+    def get_sphere_uv(p, rec):
+        theta = np.arccos(p.y())
+        phi = np.arctan2(p.z(), p.x()) + np.pi
+        rec.u = phi / (2 * np.pi)
+        rec.v = theta / np.pi

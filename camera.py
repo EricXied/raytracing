@@ -61,7 +61,7 @@ class Camera:
                 im.putpixel((i, j), tuple(map(int, (256 * color).e)))
 
         im.show()
-        im.save(self.img_name + '.png')
+        im.save('.\\saved_images\\'+self.img_name + '.png')
 
     def ray_tracing_task(self, i, j, world):
 

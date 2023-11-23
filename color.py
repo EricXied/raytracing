@@ -25,8 +25,9 @@ class Color(Vec3):
 
         return Color((interval.clamp(r), interval.clamp(g), (interval.clamp(b))))
 
+    def value(self, u, v, p):
+        return self
+
 
 def linear_to_gamma(linear):
     return np.sqrt(linear)
-
-
